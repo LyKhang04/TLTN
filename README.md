@@ -1,6 +1,6 @@
 # Sảnh — Nền tảng quản lý chung cư
 
-Dự án full-stack dựng từ ERD "Quản lý chung cư" (25 bảng): backend Spring Boot (Java 17)
+Dự án full-stack dựng từ ERD "Quản lý chung cư" (26 bảng, gồm cả chat_messages lưu lịch sử chatbot): backend Spring Boot (Java 17)
 và frontend React (Vite). Backend dùng H2 in-memory kèm dữ liệu mẫu để chạy demo ngay,
 không cần cài đặt MySQL.
 
@@ -82,15 +82,19 @@ Cách hoạt động:
 
 ## Những gì đã hoàn thiện
 
-- **25 Entity JPA** ánh xạ đầy đủ 25 bảng trong ERD, kể cả các FK "ẩn" trong `incidents`
+- **26 Entity JPA** ánh xạ đầy đủ 26 bảng trong ERD, kể cả các FK "ẩn" trong `incidents`
   (`reporter`, `approvedBy`, `assignedTo` đều trỏ về `users`).
-- **25 REST Controller CRUD** (`/api/{ten-bang}` — GET danh sách, GET theo id, POST, PUT, DELETE).
+- **26 REST Controller CRUD** (`/api/{ten-bang}` — GET danh sách, GET theo id, POST, PUT, DELETE).
 - **Đăng nhập** với mật khẩu băm BCrypt (`/api/auth/login`).
 - **Dashboard tổng hợp** (`/api/dashboard/summary`) tính số căn hộ, hóa đơn chưa thu, sự cố đang mở.
 - **Giao diện React** dùng lại thiết kế "Sảnh" (đổi vai trò Quản lý / Cư dân), 12 màn hình
   kết nối API thật: Tổng quan, Căn hộ, Cư dân, Hóa đơn, Sự cố, Thông báo (Admin) và
   Trang chủ, Hóa đơn của tôi (có nút thanh toán), Đăng ký khách, Báo sự cố, Đặt tiện ích,
-  Thông báo (Cư dân).
+  Thông báo (Cư dân). Các trang của cư dân chỉ hiển thị dữ liệu thuộc căn hộ/tài khoản
+  của chính cư dân đang đăng nhập.
+- **Thanh toán hóa đơn** dùng endpoint nghiệp vụ `POST /api/payments/settle/{invoiceId}`:
+  vừa ghi nhận khoản thanh toán, vừa tự động chuyển hóa đơn sang trạng thái `PAID`
+  khi đã trả đủ số tiền.
 - **Chatbot AI "Sảnh AI"** hỗ trợ cư dân — widget chat nổi gọi thẳng Claude API, trả lời
   dựa trên dữ liệu thật của từng cư dân (xem mục cấu hình bên dưới).
 

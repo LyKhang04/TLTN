@@ -18,6 +18,9 @@ export const getApartmentResidents = () => api.get("/apartment-residents");
 export const getInvoices = () => api.get("/invoices");
 export const getInvoiceItems = () => api.get("/invoice-items");
 export const createPayment = (payment) => api.post("/payments", payment);
+// Thanh toán theo nghiệp vụ: ghi nhận khoản trả VÀ cập nhật trạng thái hóa đơn
+export const settleInvoice = (invoiceId, payment) =>
+  api.post(`/payments/settle/${invoiceId}`, payment);
 
 // --- Sự cố ---
 export const getIncidents = () => api.get("/incidents");

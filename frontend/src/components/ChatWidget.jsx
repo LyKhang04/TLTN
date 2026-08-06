@@ -7,7 +7,10 @@ const GREETING = "Chào bạn 👋 Mình là Sảnh AI. Bạn có thể hỏi m�
 
 export default function ChatWidget({ currentUser }) {
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([{ role: "assistant", content: GREETING }]);
+  // greeting: true => chỉ hiển thị ở giao diện, KHÔNG gửi lên Anthropic API.
+  // Anthropic yêu cầu phần tử đầu tiên của mảng messages phải có role "user",
+  // nếu gửi kèm câu chào (role "assistant") thì API sẽ trả về lỗi 400.
+  const [messages, setMessages] = useState([{ role: "assistant", content: GREETING, greeting: true }]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef(null);
@@ -28,10 +31,14 @@ export default function ChatWidget({ currentUser }) {
     setSending(true);
 
     try {
-      const history = nextMessages
+      // Bỏ câu chào mở đầu và mọi tin nhắn "assistant" đứng trước lượt "user" đầu tiên,
+      // để lịch sử gửi lên API luôn bắt đầu bằng role "user".
+      let history = nextMessages
         .slice(0, -1)
-        .filter((m) => m.role === "user" || m.role === "assistant")
+        .filter((m) => !m.greeting && (m.role === "user" || m.role === "assistant"))
         .map((m) => ({ role: m.role, content: m.content }));
+      const firstUserIndex = history.findIndex((m) => m.role === "user");
+      history = firstUserIndex === -1 ? [] : history.slice(firstUserIndex);
 
       const res = await api.post("/chat", {
         residentId: currentUser?.id,

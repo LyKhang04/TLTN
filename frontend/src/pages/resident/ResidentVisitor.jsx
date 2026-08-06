@@ -1,11 +1,34 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UserPlus } from "lucide-react";
 import { C } from "../../theme";
-import { Shell, Card, TextField, PrimaryButton, StatusBadge, LoadingBlock, ErrorBlock, useApi } from "../../components/Common";
+import { Shell, Card, TextField, PrimaryButton, StatusBadge, LoadingBlock, ErrorBlock } from "../../components/Common";
 import { getVisitorRegistrations, createVisitorRegistration } from "../../api/services";
+import { filterByOwner } from "../../api/scope";
 
 export default function ResidentVisitor({ currentUser }) {
-  const { data: visitors, loading, error, reload } = useApi(getVisitorRegistrations);
+  const [visitors, setVisitors] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Chỉ hiển thị khách do chính cư dân này đăng ký.
+  const reload = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const all = await getVisitorRegistrations();
+      setVisitors(filterByOwner(all, currentUser, "resident"));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.id]);
+
   const [form, setForm] = useState({ guestName: "", guestPhone: "", visitDate: "", expectedTime: "" });
   const [submitting, setSubmitting] = useState(false);
 

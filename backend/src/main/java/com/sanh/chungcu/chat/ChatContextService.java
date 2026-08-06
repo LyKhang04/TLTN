@@ -4,6 +4,7 @@ import com.sanh.chungcu.entity.*;
 import com.sanh.chungcu.repository.*;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,11 @@ public class ChatContextService {
                     String invoiceLines = invoices.stream()
                             .map(inv -> String.format("kỳ %d/%d: %,.0fđ (%s)",
                                     inv.getPeriodMonth(), inv.getPeriodYear(),
-                                    inv.getTotalAmount() == null ? 0 : inv.getTotalAmount(), inv.getStatus()))
+                                    // Phải dùng BigDecimal.ZERO chứ không phải số nguyên 0:
+                                    // toán tử ba ngôi giữa int và BigDecimal sẽ trả về Integer,
+                                    // khiến %f ném IllegalFormatConversionException.
+                                    inv.getTotalAmount() == null ? BigDecimal.ZERO : inv.getTotalAmount(),
+                                    inv.getStatus()))
                             .collect(Collectors.joining("; "));
                     sb.append("  Hóa đơn: ").append(invoiceLines).append("\n");
                 }

@@ -1,11 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Wrench, Plus } from "lucide-react";
 import { C } from "../../theme";
-import { Shell, Card, StatusBadge, PrimaryButton, TextField, LoadingBlock, ErrorBlock, useApi } from "../../components/Common";
+import { Shell, Card, StatusBadge, PrimaryButton, TextField, LoadingBlock, ErrorBlock } from "../../components/Common";
 import { getIncidents, createIncident } from "../../api/services";
+import { getMyApartmentIds, filterByOwner } from "../../api/scope";
 
 export default function ResidentIncidents({ currentUser }) {
-  const { data: incidents, loading, error, reload } = useApi(getIncidents);
+  const [incidents, setIncidents] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  // Căn hộ của cư dân, dùng để gán vào sự cố mới tạo (trước đây bị bỏ trống).
+  const [myApartmentId, setMyApartmentId] = useState(null);
+
+  useEffect(() => {
+    getMyApartmentIds(currentUser)
+      .then((ids) => setMyApartmentId(ids[0] ?? null))
+      .catch(() => setMyApartmentId(null));
+  }, [currentUser?.id]);
+
+  // Chỉ hiển thị các sự cố do chính cư dân này báo cáo.
+  const reload = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const all = await getIncidents();
+      setIncidents(filterByOwner(all, currentUser, "reporter"));
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.id]);
+
   const [showForm, setShowForm] = useState(false);
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -16,6 +47,7 @@ export default function ResidentIncidents({ currentUser }) {
     try {
       await createIncident({
         reporter: { id: currentUser?.id },
+        apartment: myApartmentId ? { id: myApartmentId } : null,
         category,
         description,
         status: "NEW",

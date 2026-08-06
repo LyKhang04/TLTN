@@ -29,7 +29,28 @@ public class AnthropicClient {
     }
 
     public boolean isConfigured() {
-        return properties.getApiKey() != null && !properties.getApiKey().isBlank();
+        return sanitizedApiKey() != null;
+    }
+
+    /**
+     * Làm sạch API key trước khi gửi đi.
+     * Khi dán key vào ô Environment variables của IDE hoặc vào file .env, key rất dễ
+     * dính dấu nháy bao ngoài hoặc khoảng trắng/xuống dòng ở hai đầu — những ký tự này
+     * khiến Anthropic trả về lỗi 401 "API key is invalid".
+     */
+    private String sanitizedApiKey() {
+        String key = properties.getApiKey();
+        if (key == null) {
+            return null;
+        }
+        key = key.trim();
+        // Bỏ dấu nháy đơn/kép bao quanh nếu người dùng lỡ dán cả dấu nháy
+        if (key.length() >= 2
+                && ((key.startsWith("\"") && key.endsWith("\""))
+                || (key.startsWith("'") && key.endsWith("'")))) {
+            key = key.substring(1, key.length() - 1).trim();
+        }
+        return key.isBlank() ? null : key;
     }
 
     /**
@@ -56,7 +77,7 @@ public class AnthropicClient {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(properties.getBaseUrl()))
                 .header("Content-Type", "application/json")
-                .header("x-api-key", properties.getApiKey())
+                .header("x-api-key", sanitizedApiKey())
                 .header("anthropic-version", "2023-06-01")
                 .timeout(Duration.ofSeconds(30))
                 .POST(HttpRequest.BodyPublishers.ofString(json))
@@ -65,6 +86,14 @@ public class AnthropicClient {
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() != 200) {
+            if (response.statusCode() == 401) {
+                // In ra "vân tay" của key (đã che) để tự kiểm tra mà không lộ key thật.
+                String k = sanitizedApiKey();
+                String fingerprint = k == null ? "(rỗng)"
+                        : k.substring(0, Math.min(14, k.length())) + "..." + " [độ dài: " + k.length() + "]";
+                System.err.println("[Sanh AI] Anthropic từ chối API key. Key đang dùng: " + fingerprint);
+                System.err.println("[Sanh AI] Key hợp lệ thường bắt đầu bằng 'sk-ant-api03-' và dài trên 100 ký tự.");
+            }
             throw new RuntimeException("Anthropic API lỗi (" + response.statusCode() + "): " + response.body());
         }
 

@@ -1,9 +1,21 @@
 server:
   port: 8080
 
-# --- Chatbot AI ho tro cu dan (Sanh AI) ---
-# Dat bien moi truong ANTHROPIC_API_KEY truoc khi chay backend de bat tinh nang nay.
-# Khong bao gio hardcode API key truc tiep vao file nay.
+# Khong bao gio hardcode API key truc tiep vao file nay - dung bien moi truong.
+# --- Cau hinh chatbot "Sanh AI" ---
+# ai.provider: gemini | anthropic | auto
+#   auto = uu tien nha cung cap nao da co API key (xet Gemini truoc vi co goi mien phi)
+ai:
+  provider: ${AI_PROVIDER:auto}
+
+# Google Gemini - co goi MIEN PHI, khong can the tin dung.
+# Lay API key tai: https://aistudio.google.com/app/apikey
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+  model: gemini-2.5-flash
+  base-url: https://generativelanguage.googleapis.com/v1beta/models
+
+# Anthropic Claude - tra phi theo token, can nap tin dung tai console.anthropic.com
 anthropic:
   api-key: ${ANTHROPIC_API_KEY:}
   model: claude-sonnet-5

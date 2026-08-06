@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class AnthropicClient {
+public class AnthropicClient implements AiChatClient {
 
     private final AnthropicProperties properties;
     private final HttpClient httpClient;
@@ -28,6 +28,12 @@ public class AnthropicClient {
                 .build();
     }
 
+    @Override
+    public String providerName() {
+        return "Anthropic Claude";
+    }
+
+    @Override
     public boolean isConfigured() {
         return sanitizedApiKey() != null;
     }
@@ -39,24 +45,14 @@ public class AnthropicClient {
      * khiến Anthropic trả về lỗi 401 "API key is invalid".
      */
     private String sanitizedApiKey() {
-        String key = properties.getApiKey();
-        if (key == null) {
-            return null;
-        }
-        key = key.trim();
-        // Bỏ dấu nháy đơn/kép bao quanh nếu người dùng lỡ dán cả dấu nháy
-        if (key.length() >= 2
-                && ((key.startsWith("\"") && key.endsWith("\""))
-                || (key.startsWith("'") && key.endsWith("'")))) {
-            key = key.substring(1, key.length() - 1).trim();
-        }
-        return key.isBlank() ? null : key;
+        return AiChatClient.sanitizeKey(properties.getApiKey());
     }
 
     /**
      * Gọi Anthropic Messages API. systemPrompt chứa vai trò + dữ liệu ngữ cảnh cư dân,
      * turns là lịch sử hội thoại (đã bao gồm câu hỏi mới nhất của người dùng).
      */
+    @Override
     public String sendMessage(String systemPrompt, List<ChatRequest.ChatMessage> turns) throws Exception {
         List<Map<String, String>> messages = new ArrayList<>();
         for (ChatRequest.ChatMessage t : turns) {

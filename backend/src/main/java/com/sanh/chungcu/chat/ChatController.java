@@ -34,16 +34,16 @@ public class ChatController {
             ---
             """;
 
-    private final AnthropicClient anthropicClient;
+    private final AiClientResolver aiClientResolver;
     private final ChatContextService contextService;
     private final ChatMessageRepository chatMessageRepository;
     private final UserRepository userRepository;
 
-    public ChatController(AnthropicClient anthropicClient,
-                           ChatContextService contextService,
-                           ChatMessageRepository chatMessageRepository,
-                           UserRepository userRepository) {
-        this.anthropicClient = anthropicClient;
+    public ChatController(AiClientResolver aiClientResolver,
+                          ChatContextService contextService,
+                          ChatMessageRepository chatMessageRepository,
+                          UserRepository userRepository) {
+        this.aiClientResolver = aiClientResolver;
         this.contextService = contextService;
         this.chatMessageRepository = chatMessageRepository;
         this.userRepository = userRepository;
@@ -51,10 +51,11 @@ public class ChatController {
 
     @PostMapping
     public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest request) {
-        if (!anthropicClient.isConfigured()) {
+        AiChatClient aiClient = aiClientResolver.resolve();
+        if (aiClient == null) {
             return ResponseEntity.ok(new ChatResponse(
                     "Chatbot chưa được cấu hình. Ban quản trị hệ thống cần đặt biến môi trường " +
-                    "ANTHROPIC_API_KEY trước khi khởi động backend để bật tính năng này."
+                            "GEMINI_API_KEY (gói miễn phí) hoặc ANTHROPIC_API_KEY trước khi khởi động backend."
             ));
         }
 
@@ -87,7 +88,7 @@ public class ChatController {
         saveMessage(request.getResidentId(), "user", request.getMessage());
 
         try {
-            String reply = anthropicClient.sendMessage(systemPrompt, turns);
+            String reply = aiClient.sendMessage(systemPrompt, turns);
             // Lưu câu trả lời của AI vào lịch sử chat
             saveMessage(request.getResidentId(), "assistant", reply);
             return ResponseEntity.ok(new ChatResponse(reply));

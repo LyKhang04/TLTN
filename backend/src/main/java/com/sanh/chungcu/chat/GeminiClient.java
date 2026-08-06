@@ -97,6 +97,12 @@ public class GeminiClient implements AiChatClient {
             if (response.statusCode() == 429) {
                 System.err.println("[Sanh AI] Đã chạm giới hạn miễn phí của Gemini. Chờ ít phút rồi thử lại.");
             }
+            if (response.statusCode() == 404) {
+                System.err.println("[Sanh AI] Model '" + properties.getModel() + "' không còn khả dụng.");
+                System.err.println("[Sanh AI] Google thường xuyên ngừng hỗ trợ model cũ. Hãy đổi 'gemini.model' "
+                        + "trong application.yml sang model mới, xem danh sách tại "
+                        + "https://ai.google.dev/gemini-api/docs/models");
+            }
             throw new RuntimeException("Gemini API lỗi (" + response.statusCode() + "): " + response.body());
         }
 

@@ -12,7 +12,7 @@ ai:
 # Lay API key tai: https://aistudio.google.com/app/apikey
 gemini:
   api-key: ${GEMINI_API_KEY:}
-  model: gemini-2.5-flash
+  model: gemini-3-flash-preview
   base-url: https://generativelanguage.googleapis.com/v1beta/models
 
 # Anthropic Claude - tra phi theo token, can nap tin dung tai console.anthropic.com

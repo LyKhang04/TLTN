@@ -12,7 +12,7 @@ import lombok.Setter;
 public class GeminiProperties {
     /** Đọc từ biến môi trường GEMINI_API_KEY, xem application.yml */
     private String apiKey;
-    /** Model miễn phí, hạn mức rộng nhất: gemini-2.5-flash-lite */
-    private String model = "gemini-2.5-flash";
+    /** Model có gói miễn phí. Xem danh sách mới nhất: https://ai.google.dev/gemini-api/docs/models */
+    private String model = "gemini-3-flash-preview";
     private String baseUrl = "https://generativelanguage.googleapis.com/v1beta/models";
 }

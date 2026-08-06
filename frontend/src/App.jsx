@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import {
     LayoutDashboard, Building2, Users, Receipt, Wrench, Bell, Home,
-    UserPlus, CalendarClock, LogOut, KeyRound, HardHat } from "lucide-react";
+    UserPlus, CalendarClock, LogOut, KeyRound, HardHat, Car, SlidersHorizontal } from "lucide-react";
 import { C } from "./theme";
 import Login from "./pages/Login";
 import ChatWidget from "./components/ChatWidget";
@@ -13,6 +13,8 @@ import AdminInvoices from "./pages/admin/AdminInvoices";
 import AdminIncidents from "./pages/admin/AdminIncidents";
 import AdminNotifications from "./pages/admin/AdminNotifications";
 import AdminMaintenance from "./pages/admin/AdminMaintenance";
+import AdminOperations from "./pages/admin/AdminOperations";
+import AdminVehicles from "./pages/admin/AdminVehicles";
 
 import ResidentHome from "./pages/resident/ResidentHome";
 import ResidentInvoices from "./pages/resident/ResidentInvoices";
@@ -39,6 +41,8 @@ const ADMIN_NAV = [
     { key: "invoices", label: "Hóa đơn & thanh toán", icon: Receipt, view: AdminInvoices },
     { key: "incidents", label: "Sự cố", icon: Wrench, view: AdminIncidents },
     { key: "maintenance", label: "Bảo trì", icon: HardHat, view: AdminMaintenance },
+    { key: "vehicles", label: "Phương tiện & Thẻ", icon: Car, view: AdminVehicles },
+    { key: "operations", label: "Vận hành & Cấu hình", icon: SlidersHorizontal, view: AdminOperations },
     { key: "notifications", label: "Thông báo", icon: Bell, view: AdminNotifications },
 ];
 

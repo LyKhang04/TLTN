@@ -98,3 +98,20 @@ INSERT INTO maintenance_tickets
                                                                                                                                                 'Thang may', 'DONE', '2026-07-15', '2026-07-15 16:30:00', 4500000, CURRENT_TIMESTAMP),
                                                                                                                                                (NULL, NULL, NULL, 1, 'Kiem tra he thong PCCC Toa B', 'Kiem tra binh chua chay va dau bao khoi cac tang',
                                                                                                                                                 'PCCC', 'PENDING', '2026-09-01', NULL, NULL, CURRENT_TIMESTAMP);
+
+-- ===== The cu dan =====
+INSERT INTO resident_cards (user_id, apartment_id, card_code, card_type, status, issued_at) VALUES
+                                                                                                (3, 1, 'RC-0001', 'RESIDENT', 'ACTIVE', CURRENT_TIMESTAMP),
+                                                                                                (3, 1, 'PK-0001', 'PARKING',  'ACTIVE', CURRENT_TIMESTAMP),
+                                                                                                (4, 2, 'RC-0002', 'RESIDENT', 'ACTIVE', CURRENT_TIMESTAMP),
+                                                                                                (5, 4, 'RC-0003', 'RESIDENT', 'ACTIVE', CURRENT_TIMESTAMP);
+
+-- ===== Nhat ky he thong =====
+INSERT INTO system_logs (user_id, action, entity, entity_id, created_at) VALUES
+                                                                             (1, 'LOGIN',            'users',                1, '2026-08-01 08:05:00'),
+                                                                             (1, 'CREATE_INVOICE',   'invoices',             1, '2026-08-01 08:30:00'),
+                                                                             (1, 'ASSIGN_INCIDENT',  'incidents',            1, '2026-08-02 09:15:00'),
+                                                                             (1, 'CREATE_TICKET',    'maintenance_tickets',  1, '2026-08-02 09:20:00'),
+                                                                             (3, 'LOGIN',            'users',                3, '2026-08-03 19:40:00'),
+                                                                             (3, 'CREATE_INCIDENT',  'incidents',            2, '2026-08-03 19:45:00'),
+                                                                             (6, 'UPDATE_TICKET',    'maintenance_tickets',  2, '2026-08-04 14:10:00');

@@ -58,3 +58,24 @@ export const completeMaintenance = (id, payload) => api.post(`/maintenance-ticke
 export const getMaintenanceSummary = () => api.get("/maintenance-tickets/summary");
 export const createTicketFromIncident = (incidentId, payload) =>
     api.post(`/maintenance-tickets/from-incident/${incidentId}`, payload);
+
+// --- Van hanh & cau hinh ---
+export const getServicePrices = () => api.get("/service-price-configs");
+export const createServicePrice = (c) => api.post("/service-price-configs", c);
+export const updateServicePrice = (id, c) => api.put(`/service-price-configs/${id}`, c);
+export const deleteServicePrice = (id) => api.del(`/service-price-configs/${id}`);
+
+export const getUtilityReadings = () => api.get("/utility-readings");
+export const createUtilityReading = (r) => api.post("/utility-readings", r);
+export const deleteUtilityReading = (id) => api.del(`/utility-readings/${id}`);
+
+export const getSystemLogs = () => api.get("/system-logs");
+
+// --- Phuong tien & the cu dan ---
+export const getVehicles = () => api.get("/vehicles");
+export const createVehicle = (v) => api.post("/vehicles", v);
+export const deleteVehicle = (id) => api.del(`/vehicles/${id}`);
+
+export const getResidentCards = () => api.get("/resident-cards");
+export const createResidentCard = (c) => api.post("/resident-cards", c);
+export const deleteResidentCard = (id) => api.del(`/resident-cards/${id}`);

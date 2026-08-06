@@ -2,6 +2,7 @@ package com.sanh.chungcu.controller;
 
 import com.sanh.chungcu.entity.Invoice;
 import com.sanh.chungcu.repository.InvoiceRepository;
+import com.sanh.chungcu.service.InvoiceGenerationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,9 +13,30 @@ import java.util.List;
 public class InvoiceController {
 
     private final InvoiceRepository repository;
+    private final InvoiceGenerationService generationService;
 
-    public InvoiceController(InvoiceRepository repository) {
+    public InvoiceController(InvoiceRepository repository,
+                             InvoiceGenerationService generationService) {
         this.repository = repository;
+        this.generationService = generationService;
+    }
+
+    /**
+     * Tự động phát hành hóa đơn dịch vụ cho toàn bộ căn hộ đang có người ở
+     * trong một kỳ (tháng/năm). Hệ thống tự tính phí quản lý theo diện tích,
+     * tiền điện/nước theo chỉ số đã ghi và phí gửi xe theo số phương tiện.
+     *
+     * Ví dụ: POST /api/invoices/generate?month=8&year=2026&issuedBy=1
+     */
+    @PostMapping("/generate")
+    public ResponseEntity<?> generate(@RequestParam int month,
+                                      @RequestParam int year,
+                                      @RequestParam(required = false) Integer issuedBy) {
+        try {
+            return ResponseEntity.ok(generationService.generateForPeriod(month, year, issuedBy));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
+        }
     }
 
     @GetMapping

@@ -46,9 +46,13 @@ public class AuthController {
         }
 
         return found
-                .filter(u -> passwordEncoder.matches(request.getPassword(), u.getPasswordHash()))
+                .filter(u -> u.getPasswordHash() != null
+                        && passwordEncoder.matches(request.getPassword(), u.getPasswordHash()))
                 .<ResponseEntity<?>>map(u -> ResponseEntity.ok(new UserSummary(u)))
-                .orElse(ResponseEntity.status(401).body(Map.of("message", "Sai tài khoản hoặc mật khẩu")));
+                // Dung orElseGet thay cho orElse: chi tao doi tuong loi khi thuc su
+                // dang nhap that bai, khong tao thua o moi lan dang nhap thanh cong.
+                .orElseGet(() -> ResponseEntity.status(401)
+                        .body(Map.of("message", "Sai tài khoản hoặc mật khẩu")));
     }
 
     @GetMapping("/me/{id}")
@@ -88,16 +92,12 @@ public class AuthController {
             return ResponseEntity.badRequest()
                     .body(Map.of("message", "Tên đăng nhập đã tồn tại. Vui lòng chọn tên khác."));
         }
-        if (!isBlank(email) && userRepository.findAll().stream()
-                .anyMatch(u -> email.equalsIgnoreCase(u.getEmail()))) {
+        if (!isBlank(email) && userRepository.existsByEmailIgnoreCase(email)) {
             return ResponseEntity.badRequest()
                     .body(Map.of("message", "Email này đã được sử dụng."));
         }
 
-        Role residentRole = roleRepository.findAll().stream()
-                .filter(r -> "RESIDENT".equalsIgnoreCase(r.getName()))
-                .findFirst()
-                .orElse(null);
+        Role residentRole = roleRepository.findByNameIgnoreCase("RESIDENT").orElse(null);
         if (residentRole == null) {
             return ResponseEntity.status(500)
                     .body(Map.of("message", "Hệ thống chưa cấu hình vai trò RESIDENT."));
@@ -159,9 +159,7 @@ public class AuthController {
         if (isBlank(username)) {
             return Optional.empty();
         }
-        return userRepository.findAll().stream()
-                .filter(u -> username.trim().equalsIgnoreCase(u.getUsername()))
-                .findFirst();
+        return userRepository.findByUsernameIgnoreCase(username.trim());
     }
 
     private static boolean isBlank(String s) {

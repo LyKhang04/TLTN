@@ -107,12 +107,7 @@ public class IncidentController {
     /** Xem nhật ký xử lý của một sự cố, sắp theo thứ tự ghi nhận. */
     @GetMapping("/{id}/logs")
     public List<IncidentLog> logs(@PathVariable Integer id) {
-        return logRepository.findAll().stream()
-                .filter(l -> l.getIncident() != null && id.equals(l.getIncident().getId()))
-                .sorted((a, b) -> Integer.compare(
-                        a.getId() == null ? 0 : a.getId(),
-                        b.getId() == null ? 0 : b.getId()))
-                .toList();
+        return logRepository.findByIncident_IdOrderByIdAsc(id);
     }
 
     private void writeLog(Incident incident, User updatedBy, String status, String note) {

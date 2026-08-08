@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -85,12 +86,15 @@ public class PaymentController {
             invoiceRepository.save(invoice);
         }
 
-        return ResponseEntity.ok(Map.of(
-                "payment", saved,
-                "invoiceStatus", invoice.getStatus(),
-                "paidAmount", paid,
-                "totalAmount", total
-        ));
+        // Map.of KHONG chap nhan gia tri null (nem NullPointerException).
+        // Hoa don tao bang CRUD thuan co the chua co trang thai, nen dung
+        // LinkedHashMap va thay null bang chuoi mo ta de tranh loi HTTP 500.
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("payment", saved);
+        body.put("invoiceStatus", invoice.getStatus() == null ? "UNKNOWN" : invoice.getStatus().name());
+        body.put("paidAmount", paid);
+        body.put("totalAmount", total);
+        return ResponseEntity.ok(body);
     }
 
     @PutMapping("/{id}")
